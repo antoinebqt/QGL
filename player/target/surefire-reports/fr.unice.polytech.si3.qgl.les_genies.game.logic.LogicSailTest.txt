@@ -1,4 +1,0 @@
--------------------------------------------------------------------------------
-Test set: fr.unice.polytech.si3.qgl.les_genies.game.logic.LogicSailTest
--------------------------------------------------------------------------------
-Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.004 s - in fr.unice.polytech.si3.qgl.les_genies.game.logic.LogicSailTest

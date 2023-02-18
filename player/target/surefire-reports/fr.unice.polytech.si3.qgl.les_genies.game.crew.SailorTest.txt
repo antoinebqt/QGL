@@ -1,4 +1,0 @@
--------------------------------------------------------------------------------
-Test set: fr.unice.polytech.si3.qgl.les_genies.game.crew.SailorTest
--------------------------------------------------------------------------------
-Tests run: 11, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.024 s - in fr.unice.polytech.si3.qgl.les_genies.game.crew.SailorTest
