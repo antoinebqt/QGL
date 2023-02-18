@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Entity.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">les_genies</a> &gt; <a href="index.source.html" class="el_package">fr.unice.polytech.si3.qgl.les_genies.game.entities</a> &gt; <span class="el_source">Entity.java</span></div><h1>Entity.java</h1><pre class="source lang-java linenums">package fr.unice.polytech.si3.qgl.les_genies.game.entities;
+
+import com.fasterxml.jackson.annotation.*;
+import fr.unice.polytech.si3.qgl.les_genies.game.tools.Coordinates;
+import fr.unice.polytech.si3.qgl.les_genies.game.crew.Sailor;
+import java.util.List;
+
+public class Entity {
+
+    protected String type;
+
+    @JsonIgnore
+    protected Sailor sailor;
+
+    @JsonIgnore
+    protected Coordinates coordinates;
+
+    @JsonIgnore
+    protected boolean active;
+
+    @JsonIgnore
+    protected boolean focus;
+
+    @JsonIgnore
+    protected double angleEntity;
+
+    /**
+     * Constructor to make test, we can create an entity with coordinate
+     * don't affect the Json stuff
+     * @param x coordinate x
+     * @param y coordinate y
+     */
+<span class="fc" id="L33">    public Entity(int x, int y){</span>
+<span class="fc" id="L34">        this.coordinates = new Coordinates(x,y);</span>
+<span class="fc" id="L35">    }</span>
+
+    public String getType() {
+<span class="fc" id="L38">        return type;</span>
+    }
+
+    @JsonGetter
+    public int getX() {
+<span class="fc" id="L43">        return this.coordinates.getCoordinateX();</span>
+    }
+
+    @JsonGetter
+    public int getY() {
+<span class="fc" id="L48">        return this.coordinates.getCoordinateY();</span>
+    }
+
+    @JsonSetter(&quot;x&quot;)
+    public void setX(int x) {
+<span class="fc" id="L53">        coordinates.setCoordinateX(x);</span>
+<span class="fc" id="L54">    }</span>
+
+    @JsonSetter(&quot;y&quot;)
+    public void setY(int y) {
+<span class="fc" id="L58">        coordinates.setCoordinateY(y);</span>
+<span class="fc" id="L59">    }</span>
+
+    public boolean isActive() {
+<span class="fc" id="L62">        return active;</span>
+    }
+
+    public boolean isFocus() {
+<span class="fc" id="L66">        return focus;</span>
+    }
+
+    public void setFocusedBy(Sailor sailor){
+<span class="fc" id="L70">        this.focus = true;</span>
+<span class="fc" id="L71">        this.sailor = sailor;</span>
+<span class="fc" id="L72">    }</span>
+
+    public void disFocusing(){
+<span class="fc" id="L75">        this.focus = false;</span>
+<span class="fc" id="L76">        this.sailor = null;</span>
+<span class="fc" id="L77">    }</span>
+
+    /**
+     * The entity is now use by a sailor
+     * @param sailor a sailor
+     */
+    public void getUsedBy(Sailor sailor){
+<span class="fc" id="L84">        this.sailor = sailor;</span>
+<span class="fc" id="L85">        this.active = true;</span>
+<span class="fc" id="L86">    }</span>
+
+    /**
+     * Entity is now inactive
+     */
+    public void liberation(){
+<span class="fc" id="L92">        this.sailor = null;</span>
+<span class="fc" id="L93">        this.active = false;</span>
+<span class="fc" id="L94">    }</span>
+
+    public boolean isLoaded() {
+<span class="fc" id="L97">        return false;</span>
+    }
+
+    public double getAngleEntity() {
+<span class="fc" id="L101">        return angleEntity;</span>
+    }
+
+    public boolean isOpenned() {
+<span class="fc" id="L105">        return false;</span>
+    }
+
+    @JsonSetter(&quot;type&quot;)
+    public void setType(String type){
+<span class="fc" id="L110">        this.type = type;</span>
+<span class="fc" id="L111">    }</span>
+
+    /**
+     * @param sailor a sailor
+     * @return the distance between this entity and the sailor
+     */
+    public int distanceFromSailor(Sailor sailor){
+<span class="fc" id="L118">        return this.coordinates.distance(sailor.getCoordinates());</span>
+    }
+
+    /**
+     * method that return the closest sailor from this entity
+     * witch is not already link to an entity
+     * if list is empty, then this return null. cz there no sailor
+     * @param sailorList a list of present sailor that can move
+     * @return a sailor
+     */
+    public Sailor muchCloserSailor(List&lt;Sailor&gt; sailorList){
+<span class="fc" id="L129">        int min = 100000;</span>
+<span class="fc" id="L130">        Sailor sal = null;</span>
+<span class="fc bfc" id="L131" title="All 2 branches covered.">        if(!sailorList.isEmpty()) {</span>
+<span class="fc bfc" id="L132" title="All 2 branches covered.">            for(Sailor s: sailorList){</span>
+<span class="fc bfc" id="L133" title="All 2 branches covered.">                if(!s.isOnEntity()) {</span>
+<span class="fc" id="L134">                    int nat = distanceFromSailor(s);</span>
+<span class="fc bfc" id="L135" title="All 2 branches covered.">                    if (nat &lt; min) {</span>
+<span class="fc" id="L136">                        min = nat;</span>
+<span class="fc" id="L137">                        sal = s;</span>
+                    }
+                }
+<span class="fc" id="L140">            }</span>
+        }
+<span class="fc" id="L142">        return sal;</span>
+    }
+
+    public Sailor getSailor(){
+<span class="fc" id="L146">        return sailor;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

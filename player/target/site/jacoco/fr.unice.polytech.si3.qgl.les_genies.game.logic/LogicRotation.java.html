@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LogicRotation.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">les_genies</a> &gt; <a href="index.source.html" class="el_package">fr.unice.polytech.si3.qgl.les_genies.game.logic</a> &gt; <span class="el_source">LogicRotation.java</span></div><h1>LogicRotation.java</h1><pre class="source lang-java linenums">package fr.unice.polytech.si3.qgl.les_genies.game.logic;
+
+import fr.unice.polytech.si3.qgl.les_genies.game.checkpoint.Checkpoint;
+import fr.unice.polytech.si3.qgl.les_genies.game.ship.Ship;
+import fr.unice.polytech.si3.qgl.les_genies.game.entities.Entity;
+import fr.unice.polytech.si3.qgl.les_genies.game.tools.Vector;
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
+import java.util.Objects;
+import static java.lang.Math.PI;
+
+public class LogicRotation {
+
+    Ship ship;
+    private double angleRudder;
+    private final OarConfig oarConfig;
+    private double angle;
+    private double bestAngle;
+
+<span class="fc" id="L20">    public LogicRotation(Ship ship){</span>
+<span class="fc" id="L21">        this.ship = ship;</span>
+<span class="fc" id="L22">        angleRudder = 0.0;</span>
+<span class="fc" id="L23">        oarConfig = new OarConfig(0,0);</span>
+<span class="fc" id="L24">    }</span>
+
+    public void computeRotationData(Checkpoint checkpoint){
+<span class="fc" id="L27">        angle = angleToCheckpoint(checkpoint);</span>
+
+<span class="fc bfc" id="L29" title="All 4 branches covered.">        if (angle &gt;= -Math.PI/4 &amp;&amp; angle &lt;= Math.PI/4){</span>
+            // We can make the right angle using only the rudder
+<span class="fc" id="L31">            angleRudder = angle;</span>
+        } else {
+            // We need to use the oars to turn
+<span class="fc" id="L34">            computeOar(angle);</span>
+<span class="fc" id="L35">            angleRudder = angleAjustement(angle, bestAngle);</span>
+
+        }
+<span class="fc" id="L38">    }</span>
+
+    double angleAjustement(double angle, double bestAngle) {
+<span class="fc" id="L41">        double angleAdjustment = angle - bestAngle;</span>
+
+<span class="fc bfc" id="L43" title="All 2 branches covered.">        if (angleAdjustment &gt; 0){</span>
+<span class="fc" id="L44">            return Math.min(angleAdjustment, PI / 4);</span>
+<span class="fc bfc" id="L45" title="All 2 branches covered.">        } else if(angleAdjustment &lt; 0) {</span>
+<span class="fc" id="L46">            return Math.max(angleAdjustment, -PI / 4);</span>
+        } else {
+<span class="fc" id="L48">            return 0;</span>
+        }
+    }
+
+    /**
+     * Compute the angle between the ship direction and
+     * the given checkpoint
+     *
+     * @param checkpoint The checkpoint to be aligned with
+     * @return A double value, it's the value to turn to be
+     * aligned with the given checkpoint
+     */
+    public double angleToCheckpoint(Checkpoint checkpoint) {
+<span class="fc" id="L61">        double shipOrientation = ship.getPosition().getOrientation();</span>
+
+        // The vector between the positions of the ship and the checkpoint
+<span class="fc" id="L64">        Vector vectorShipCheckpoint = new Vector(ship.getPosition(), checkpoint.getPosition());</span>
+
+        // Return the difference of angle (the angle to turn)
+<span class="fc" id="L67">        return correctAngle(vectorShipCheckpoint.getAngle() - shipOrientation);</span>
+    }
+
+    /**
+     * Verify if the angle is bigger than PI or smaller than -PI and correct it
+     * @param angle in radian
+     * @return the corrected angle in radian
+     */
+    double correctAngle(double angle){
+<span class="fc bfc" id="L76" title="All 2 branches covered.">        if(angle&lt;-PI) return PI + angle+PI;</span>
+<span class="fc bfc" id="L77" title="All 2 branches covered.">        else if(angle&gt;PI) return -PI+ angle-PI;</span>
+<span class="fc" id="L78">        return angle;</span>
+    }
+
+    /**
+     * Compute all the angles possible with the number of oars
+     * and find the closer one to turn
+     *
+     * @param angleToTurn The angle to turn
+     * @return A tab of int with 2 value : the first one is the number
+     * of oars to activate on the left side of the ship and the second
+     * is the number of oars to activate on the right side of the ship
+     */
+    private void computeOar(double angleToTurn) {
+<span class="fc" id="L91">        int leftOar = 0;</span>
+<span class="fc" id="L92">        int rightOar = 0;</span>
+        int totalOar;
+
+        // Count the number of oars each side of the ship
+<span class="fc bfc" id="L96" title="All 2 branches covered.">        for (Entity entity : ship.getEntities()) {</span>
+<span class="pc bpc" id="L97" title="1 of 2 branches missed.">            if (Objects.equals(entity.getType(), &quot;oar&quot;)) {</span>
+<span class="fc bfc" id="L98" title="All 2 branches covered.">                if (entity.getY() == 0) {</span>
+<span class="fc" id="L99">                    leftOar++;</span>
+<span class="pc bpc" id="L100" title="1 of 2 branches missed.">                } else if(entity.getY()==ship.getDeck().getWidth()-1){</span>
+<span class="fc" id="L101">                    rightOar++;</span>
+                }
+            }
+<span class="fc" id="L104">        }</span>
+<span class="fc" id="L105">        totalOar = leftOar + rightOar;</span>
+
+        // If the angle to turn is superior to PI/2 then all the oars on right side must be activated
+<span class="pc bpc" id="L108" title="1 of 4 branches missed.">        if (angleToTurn &gt; Math.PI / 2 &amp;&amp; angleToTurn &lt; Math.PI) {</span>
+<span class="fc" id="L109">            oarConfig.setOarRightSide(rightOar);</span>
+        }
+        // If the angle to turn is inferior to -PI/2 then all the oars on left side must be activated
+<span class="pc bpc" id="L112" title="1 of 4 branches missed.">        else if (angleToTurn &lt; -Math.PI / 2 &amp;&amp; angleToTurn &gt; -Math.PI) {</span>
+<span class="fc" id="L113">            oarConfig.setOarLeftSide(leftOar);</span>
+        } else {
+<span class="fc" id="L115">            double[] angles = possibleAngles(totalOar); // Get all the angles possible with the number of oars</span>
+<span class="fc" id="L116">            bestAngle = bestAngle(angleToTurn, angles); // Find the best of them compared to the angle to turn</span>
+<span class="fc" id="L117">            findBestOarCombination(bestAngle, leftOar, rightOar); //Find the best combination of oars to be activated</span>
+        }
+<span class="fc" id="L119">    }</span>
+
+    /**
+     * Find the best combination of oars to be activated
+     * to turn the ship correctly
+     *
+     * @param bestAngle The best angle we can turn to be aligned with the checkpoint
+     * @param leftOar   The number of oar on the left side of the ship
+     * @param rightOar  The number of oar on the right side of the ship
+     * @return A tab of int with 2 value : the first one is the number
+     * of oars to activate on the left side of the ship and the second
+     * is the number of oars to activate on the right side of the ship
+     */
+    private void findBestOarCombination(double bestAngle, int leftOar, int rightOar) {
+        // Creating a format to round on the fifteenth decimal of the angle
+<span class="fc" id="L134">        DecimalFormat df = new DecimalFormat(&quot;#.###############&quot;);</span>
+<span class="fc" id="L135">        df.setRoundingMode(RoundingMode.CEILING);</span>
+
+<span class="fc" id="L137">        double oarPower = (Math.PI) / (leftOar + rightOar); //The power of a unique oar when activated</span>
+
+<span class="fc" id="L139">        int[] bestCombination = {0, 0}; //The initial combination</span>
+
+<span class="fc" id="L141">        boolean found = false;</span>
+
+<span class="fc bfc" id="L143" title="All 4 branches covered.">        for (int i = 0; i &lt; leftOar + 1 &amp;&amp; !found; i++) {</span>
+<span class="fc bfc" id="L144" title="All 2 branches covered.">            for (int j = 0; j &lt; rightOar + 1; j++) {</span>
+
+                /*
+                The angle that the ship will turn with i oars activated
+                on the left and j oars activated on the right
+                 */
+<span class="fc" id="L150">                double power = (i * (-oarPower) + (j * oarPower));</span>
+
+                /*
+                If the power calculated is the same that the angle we want to turn
+                then it's the good combination of oars
+                 */
+<span class="fc bfc" id="L156" title="All 2 branches covered.">                if (Objects.equals(df.format(power), df.format(bestAngle))) {</span>
+<span class="fc" id="L157">                    bestCombination[0] = i;</span>
+<span class="fc" id="L158">                    bestCombination[1] = j;</span>
+<span class="fc" id="L159">                    oarConfig.setOarEachSide(bestCombination[0],bestCombination[1]);</span>
+<span class="fc" id="L160">                    found = true;</span>
+                }
+            }
+        }
+<span class="fc" id="L164">    }</span>
+
+    /**
+     * Find the best angle we can turn compared to
+     * the actual angle we want to turn
+     *
+     * @param angleToTurn The angle we want to turn
+     * @param angles      The angles we can turn in a SORTED array
+     * @return The best angle we can turn
+     */
+    double bestAngle(double angleToTurn, double[] angles) {
+<span class="fc" id="L175">        double best = 5; // Random &quot;high&quot; value that will be use for the first comparison</span>
+<span class="fc" id="L176">        int bestIndex = 0; // Initial best index</span>
+
+        // Find the index of the best angle in the possible angles
+<span class="fc bfc" id="L179" title="All 2 branches covered.">        for (int i = 0; i &lt; angles.length; i++) {</span>
+<span class="fc" id="L180">            double minus = angleToTurn - angles[i];</span>
+<span class="fc bfc" id="L181" title="All 2 branches covered.">            if (Math.abs(minus) &lt; best) {</span>
+<span class="fc" id="L182">                best = minus;</span>
+<span class="fc" id="L183">                bestIndex = i;</span>
+            }
+        }
+<span class="fc" id="L186">        best = angles[bestIndex];</span>
+<span class="fc" id="L187">        return best;</span>
+    }
+
+    /**
+     * Compute all the possible angles the ship can turn
+     * depending on the oars it has
+     *
+     * @param totalOar The number of oars on the ship
+     * @return A tab containing all the angle the ship can turn
+     */
+    public double[] possibleAngles(int totalOar) {
+
+<span class="fc" id="L199">        double[] angles = new double[totalOar + 1];</span>
+
+<span class="fc bfc" id="L201" title="All 2 branches covered.">        if (totalOar == 0) {</span>
+<span class="fc" id="L202">            angles[0] = 0.0;</span>
+<span class="fc" id="L203">            return angles;</span>
+        }
+
+<span class="fc bfc" id="L206" title="All 2 branches covered.">        for (int i = 0; i &lt; totalOar + 1; i++) {</span>
+<span class="fc" id="L207">            angles[i] = -Math.PI / 2 + i * ((Math.PI) / totalOar);</span>
+        }
+
+<span class="fc" id="L210">        return angles;</span>
+    }
+
+    /**
+     * Convert a radian value into a degree value
+     *
+     * @param rad The radian to be converted
+     * @return The degree value of the initial radian value
+     */
+    public double radToDeg(double rad) {
+<span class="fc" id="L220">        return (rad * 180) / Math.PI;</span>
+    }
+
+    public double getAngleRudder() {
+<span class="fc" id="L224">        return angleRudder;</span>
+    }
+
+    public double getAngle() {
+<span class="fc" id="L228">        return angle;</span>
+    }
+
+    public OarConfig getOarConfig() {
+<span class="fc" id="L232">        return oarConfig;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

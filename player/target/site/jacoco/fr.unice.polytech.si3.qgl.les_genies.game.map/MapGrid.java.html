@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MapGrid.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">les_genies</a> &gt; <a href="index.source.html" class="el_package">fr.unice.polytech.si3.qgl.les_genies.game.map</a> &gt; <span class="el_source">MapGrid.java</span></div><h1>MapGrid.java</h1><pre class="source lang-java linenums">package fr.unice.polytech.si3.qgl.les_genies.game.map;
+
+import fr.unice.polytech.si3.qgl.les_genies.Cockpit;
+import fr.unice.polytech.si3.qgl.les_genies.game.checkpoint.Checkpoint;
+import fr.unice.polytech.si3.qgl.les_genies.game.pathfinding.NodeA;
+import fr.unice.polytech.si3.qgl.les_genies.game.tools.Constants;
+import fr.unice.polytech.si3.qgl.les_genies.game.tools.Position;
+import fr.unice.polytech.si3.qgl.les_genies.game.visible_entities.VisibleEntities;
+
+import java.util.ArrayList;
+import java.util.List;
+
+
+public class MapGrid extends InitMap {
+<span class="fc" id="L15">    private final List&lt;VisibleEntities&gt; allEntities = new ArrayList&lt;&gt;();</span>
+    public MapGrid(int boxSize, Checkpoint[] checkpoints){
+<span class="fc" id="L17">        super(boxSize, checkpoints);</span>
+<span class="fc" id="L18">    }</span>
+
+    /**
+     * Get every reef and call recursive method that change all status
+     * @param visibleEntities list of entities
+     */
+    public void setSpotsOccupied(List&lt;VisibleEntities&gt; visibleEntities) {
+<span class="fc bfc" id="L25" title="All 2 branches covered.">        for(VisibleEntities v: visibleEntities){</span>
+<span class="fc" id="L26">            recursiveEntityPlaceOnMap((int)Math.round(v.getPosition().getX()/boxSize),(int)Math.round(v.getPosition().getY()/boxSize),v);</span>
+<span class="fc" id="L27">        }</span>
+<span class="fc" id="L28">        placeBorder(1);</span>
+<span class="fc" id="L29">    }</span>
+
+    /**
+     * Place a border to avoid being to close of an entity
+     * @param size of the border
+     */
+    private void placeBorder(int size) {
+<span class="fc" id="L36">        int id = 100;</span>
+<span class="fc bfc" id="L37" title="All 2 branches covered.">        for(BoxMap[] arrayBox : map){</span>
+<span class="fc bfc" id="L38" title="All 2 branches covered.">            for(BoxMap boxMap : arrayBox){</span>
+<span class="fc bfc" id="L39" title="All 4 branches covered.">                if(boxMap.getStatus() &amp;&amp; hasCloseReef(boxMap, id)){</span>
+<span class="fc" id="L40">                    boxMap.setOccupied();</span>
+<span class="fc" id="L41">                    boxMap.setIndex(id);</span>
+                }
+            }
+        }
+<span class="fc" id="L45">    }</span>
+
+    private boolean hasCloseReef(BoxMap boxMap, int id) {
+<span class="fc" id="L48">        int length1 = map.length;</span>
+<span class="fc" id="L49">        int length2 = map[1].length;</span>
+
+<span class="fc bfc" id="L51" title="All 2 branches covered.">        for(int i = -1; i&lt;2 ; i++){</span>
+<span class="fc bfc" id="L52" title="All 2 branches covered.">            for(int j = -1; j&lt;2;  j++){</span>
+<span class="fc" id="L53">                int a = boxMap.getI()+i;</span>
+<span class="fc" id="L54">                int b = boxMap.getJ()+j;</span>
+
+<span class="fc bfc" id="L56" title="All 8 branches covered.">                if(a&gt;=0 &amp;&amp; b&gt;=0 &amp;&amp; a&lt;length1 &amp;&amp; b&lt;length2){</span>
+<span class="fc" id="L57">                    BoxMap box = map[a][b];</span>
+<span class="pc bpc" id="L58" title="1 of 6 branches missed.">                    if(box.getId()!=id &amp;&amp; !box.getStatus() &amp;&amp; !box.isStream()) {</span>
+<span class="fc" id="L59">                        return true;</span>
+                    }
+                }
+            }
+        }
+<span class="fc" id="L64">        return false;</span>
+    }
+
+    /**
+     * Change the status of a box if she as a reef at her position
+     * @param i first index of the box
+     * @param j second index of the box
+     * @param v Visible entity
+     */
+    void recursiveEntityPlaceOnMap(int i, int j, VisibleEntities v){
+<span class="fc" id="L74">        int id = getId(v);</span>
+        try {
+<span class="fc" id="L76">            BoxMap box = map[i][j];</span>
+<span class="fc bfc" id="L77" title="All 4 branches covered.">            if(isCornerOrMiddleOnAShape(v,box) &amp;&amp; (id != box.getId())){</span>
+<span class="fc bfc" id="L78" title="All 2 branches covered.">                if(v.getType().equals(Constants.REEF)) box.setOccupied();</span>
+<span class="fc bfc" id="L79" title="All 2 branches covered.">                else if(v.getType().equals(Constants.STREAM)) box.setAsStream(v);</span>
+<span class="fc" id="L80">                box.setIndex(id);</span>
+<span class="fc" id="L81">                recursiveEntityPlaceOnMap(i+1,j,v);</span>
+<span class="fc" id="L82">                recursiveEntityPlaceOnMap(i-1,j,v);</span>
+<span class="fc" id="L83">                recursiveEntityPlaceOnMap(i,j+1,v);</span>
+<span class="fc" id="L84">                recursiveEntityPlaceOnMap(i,j-1,v);</span>
+            }
+<span class="fc" id="L86">        }catch (ArrayIndexOutOfBoundsException arrayIndexOutOfBoundsException){</span>
+<span class="fc" id="L87">            Cockpit.addLog(arrayIndexOutOfBoundsException.getMessage());</span>
+<span class="fc" id="L88">        }</span>
+<span class="fc" id="L89">    }</span>
+
+    /**
+     * create a unique id for the entity
+     * @param v Visible entity
+     * @return the unique id
+     */
+    public int getId(VisibleEntities v) {
+<span class="fc" id="L97">        return (int) (v.getPosition().getX()+v.getPosition().getY()*1000);</span>
+    }
+
+    /**
+     * Condition to see if the point places on the corner and in the center of the box are in a shape
+     * @param ve Visible entity
+     * @param box boxMap
+     * @return boolean
+     */
+    boolean isCornerOrMiddleOnAShape(VisibleEntities ve, BoxMap box) {
+        Position p;
+<span class="fc" id="L108">        p = new Position(box.getCenter().getX() - (double) boxSize / 2, box.getCenter().getY() - (double) boxSize / 2, 0);</span>
+<span class="fc" id="L109">        boolean hl = ve.getShape().isOnShape(ve.getPosition(), p);</span>
+<span class="fc" id="L110">        p = new Position(box.getCenter().getX() + (double) boxSize / 2, box.getCenter().getY() - (double) boxSize / 2, 0);</span>
+<span class="fc" id="L111">        boolean hr = ve.getShape().isOnShape(ve.getPosition(), p);</span>
+<span class="fc" id="L112">        p = new Position(box.getCenter().getX() - (double) boxSize / 2, box.getCenter().getY() + (double) boxSize / 2, 0);</span>
+<span class="fc" id="L113">        boolean ll = ve.getShape().isOnShape(ve.getPosition(), p);</span>
+<span class="fc" id="L114">        p = new Position(box.getCenter().getX() + (double) boxSize / 2, box.getCenter().getY() + (double) boxSize / 2, 0);</span>
+<span class="fc" id="L115">        boolean lr = ve.getShape().isOnShape(ve.getPosition(), p);</span>
+<span class="fc bfc" id="L116" title="All 10 branches covered.">        return ve.getShape().isOnShape(ve.getPosition(), box.getCenter()) || hl || hr || ll || lr;</span>
+    }
+
+    /**
+     * Update the map if new entities are seen
+     * @param visibleEntities list of visible entity
+     * @return true if there is new entity
+     */
+    public boolean update(List&lt;VisibleEntities&gt; visibleEntities) {
+<span class="fc" id="L125">        boolean status = addEntities(visibleEntities);</span>
+<span class="fc bfc" id="L126" title="All 2 branches covered.">        if(status) setSpotsOccupied(allEntities);</span>
+<span class="fc" id="L127">        return status;</span>
+    }
+
+    /**
+     * add new entity in the list
+     * @param visibleEntities new visible entities
+     * @return true if there is new entities
+     */
+    boolean addEntities(List&lt;VisibleEntities&gt; visibleEntities) {
+<span class="fc" id="L136">        int count = 0;</span>
+        boolean isOnList;
+<span class="fc bfc" id="L138" title="All 2 branches covered.">        for(VisibleEntities v1: visibleEntities){</span>
+<span class="fc" id="L139">            isOnList = false;</span>
+<span class="fc bfc" id="L140" title="All 2 branches covered.">            for(VisibleEntities v2 : allEntities){</span>
+<span class="pc bpc" id="L141" title="1 of 4 branches missed.">                if(v1.getPosition().getY() == v2.getPosition().getY() &amp;&amp; v1.getPosition().getX()==v2.getPosition().getX()){</span>
+<span class="fc" id="L142">                    isOnList = true;</span>
+<span class="fc" id="L143">                    break;</span>
+                }
+<span class="fc" id="L145">            }</span>
+<span class="fc bfc" id="L146" title="All 2 branches covered.">            if(!isOnList){</span>
+<span class="fc" id="L147">                count++;</span>
+<span class="fc" id="L148">                allEntities.add(v1);</span>
+            }
+<span class="fc" id="L150">        }</span>
+
+<span class="fc bfc" id="L152" title="All 2 branches covered.">        return count&gt;0;</span>
+    }
+
+    public List&lt;VisibleEntities&gt; getAllEntities() {
+<span class="fc" id="L156">        return allEntities;</span>
+    }
+
+    public BoxMap getBox(int i, int j) {
+<span class="fc" id="L160">        return map[i][j];</span>
+    }
+
+    public BoxMap getBox(NodeA node) {
+<span class="fc" id="L164">        return map[node.getI()][node.getJ()];</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

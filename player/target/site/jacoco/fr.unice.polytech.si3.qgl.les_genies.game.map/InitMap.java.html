@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>InitMap.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">les_genies</a> &gt; <a href="index.source.html" class="el_package">fr.unice.polytech.si3.qgl.les_genies.game.map</a> &gt; <span class="el_source">InitMap.java</span></div><h1>InitMap.java</h1><pre class="source lang-java linenums">package fr.unice.polytech.si3.qgl.les_genies.game.map;
+
+import fr.unice.polytech.si3.qgl.les_genies.game.checkpoint.Checkpoint;
+import fr.unice.polytech.si3.qgl.les_genies.game.pathfinding.Size;
+import fr.unice.polytech.si3.qgl.les_genies.game.tools.Position;
+
+public class InitMap {
+    BoxMap[][] map;
+    int nbBox;
+    static int boxSize;
+
+<span class="fc" id="L12">    public InitMap(int boxSize, Checkpoint[] checkpoints) {</span>
+<span class="fc" id="L13">        Size s = getSizeMap(checkpoints);</span>
+<span class="fc" id="L14">        nbBox = Math.max(s.getX()/boxSize, s.getY()/boxSize) + 3;</span>
+<span class="fc" id="L15">        InitMap.boxSize = boxSize;</span>
+<span class="fc" id="L16">        initMap();</span>
+<span class="fc" id="L17">    }</span>
+
+    /**
+     * initialise the map with default BoxMap on each box
+     */
+    private void initMap() {
+<span class="fc" id="L23">        map = new BoxMap[nbBox][nbBox];</span>
+<span class="fc bfc" id="L24" title="All 2 branches covered.">        for (int i = 0; i &lt; map.length ; i++){</span>
+<span class="fc bfc" id="L25" title="All 2 branches covered.">            for(int j = 0; j &lt; map[i].length ; j++){</span>
+<span class="fc" id="L26">                map[i][j] = new BoxMap(boxSize,i,j);</span>
+            }
+        }
+<span class="fc" id="L29">    }</span>
+
+    /**
+     * Calcul the size off the map using positions of checkpoints.
+     * @param checkpoints list of checkpoints (WARNING their positions needs to be in positive)
+     * @return an object size
+     */
+    public Size getSizeMap(Checkpoint[] checkpoints) {
+<span class="fc" id="L37">        double x = 0;</span>
+<span class="fc" id="L38">        double y = 0;</span>
+
+<span class="fc bfc" id="L40" title="All 2 branches covered.">        for(Checkpoint c:checkpoints){</span>
+<span class="fc" id="L41">            x = Math.max(Math.abs(c.getPosition().getX()),x);</span>
+<span class="fc" id="L42">            y = Math.max(Math.abs(c.getPosition().getY()),y);</span>
+        }
+
+<span class="fc" id="L45">        int sizeBorder = 10000;</span>
+<span class="fc" id="L46">        return new Size((int)x+ sizeBorder,(int)y+ sizeBorder);</span>
+    }
+
+
+
+    /**
+     * get the box place at a given position
+     * @param position Position object(WARNING need to be in the map)
+     * @return boxMap
+     */
+    public BoxMap getBox(Position position) {
+<span class="fc" id="L57">        int i = (int)Math.round(position.getX()/boxSize);</span>
+<span class="fc" id="L58">        int j = (int)Math.round(position.getY()/boxSize);</span>
+<span class="fc bfc" id="L59" title="All 2 branches covered.">        if(i &gt; map.length-1){</span>
+<span class="fc" id="L60">            i = map.length-1;</span>
+        }
+<span class="fc bfc" id="L62" title="All 2 branches covered.">        if(j &gt; map[i].length-1){</span>
+<span class="fc" id="L63">            j = map[i].length-1;</span>
+        }
+<span class="fc" id="L65">        return map[i][j];</span>
+    }
+
+    public BoxMap[][] getMap() {
+<span class="fc" id="L69">        return map;</span>
+    }
+
+    public int getNbBox() {
+<span class="fc" id="L73">        return nbBox;</span>
+    }
+
+    public static int getBoxSize() {
+<span class="fc" id="L77">        return boxSize;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

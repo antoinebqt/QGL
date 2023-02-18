@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PathA.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">les_genies</a> &gt; <a href="index.source.html" class="el_package">fr.unice.polytech.si3.qgl.les_genies.game.pathfinding</a> &gt; <span class="el_source">PathA.java</span></div><h1>PathA.java</h1><pre class="source lang-java linenums">package fr.unice.polytech.si3.qgl.les_genies.game.pathfinding;
+
+import fr.unice.polytech.si3.qgl.les_genies.game.map.MapGrid;
+import fr.unice.polytech.si3.qgl.les_genies.game.tools.Position;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class PathA extends InitPathA{
+
+    public PathA(MapGrid map, Position shipPos, Position checkpointPos) {
+<span class="fc" id="L12">        super(map, shipPos, checkpointPos);</span>
+<span class="fc" id="L13">    }</span>
+
+    public List&lt;NodeA&gt; findPath() {
+<span class="fc" id="L16">        process();</span>
+<span class="fc" id="L17">        List&lt;NodeA&gt; path = getPath();</span>
+<span class="fc" id="L18">        simplifyPath(path);</span>
+<span class="fc" id="L19">        return path;</span>
+    }
+
+    /**
+     * Update the final cost of the target node if this cost is lesser with the current node than with de previous parent
+     *
+     * @param current NodeA
+     * @param target NodeA
+     */
+    void updateCostIfNeeded(NodeA current, NodeA target) {
+<span class="fc bfc" id="L29" title="All 4 branches covered.">        if (target == null || closedNodes[target.getI()][target.getJ()])</span>
+<span class="fc" id="L30">            return;</span>
+
+<span class="fc" id="L32">        double newFinalCost = target.getHeuristic() + current.getFinalCost() + CalculPathfinding.calculateCost(current, target, map.getBox(target));</span>
+<span class="fc" id="L33">        boolean isOpen = openSet.contains(target);</span>
+
+<span class="fc bfc" id="L35" title="All 4 branches covered.">        if (!isOpen || newFinalCost &lt; target.getFinalCost()) {</span>
+<span class="fc" id="L36">            target.setFinalCost(newFinalCost);</span>
+<span class="fc" id="L37">            target.setParent(current);</span>
+
+<span class="fc bfc" id="L39" title="All 2 branches covered.">            if (!isOpen)</span>
+<span class="fc" id="L40">                openSet.add(target);</span>
+        }
+<span class="fc" id="L42">    }</span>
+
+    /**
+     * Run the algorithm A* to find a path in the graph
+     */
+    void process() {
+        // add the start location in the prio queue
+<span class="fc" id="L49">        openSet.add(graph[startI][startJ]);</span>
+        NodeA current;
+
+        while (true) {
+<span class="fc" id="L53">            current = openSet.poll();</span>
+<span class="pc bpc" id="L54" title="1 of 2 branches missed.">            if (current == null)</span>
+<span class="nc" id="L55">                break;</span>
+<span class="fc" id="L56">            closedNodes[current.getI()][current.getJ()] = true;</span>
+<span class="fc bfc" id="L57" title="All 2 branches covered.">            if (current.equals(graph[endI][endJ]))</span>
+<span class="fc" id="L58">                return;</span>
+
+<span class="fc" id="L60">            checkAdjacentNodes(current);</span>
+        }
+<span class="nc" id="L62">    }</span>
+
+    /**
+     * For all Node around the given current Node, update the cost if needed
+     *
+     * @param current NodeA
+     */
+    void checkAdjacentNodes(NodeA current) {
+        NodeA target;
+
+<span class="fc bfc" id="L72" title="All 2 branches covered.">        for (int i = -1; i &lt; 2; i++) {</span>
+<span class="fc bfc" id="L73" title="All 2 branches covered.">            for (int j = -1; j &lt; 2; j++) {</span>
+<span class="fc bfc" id="L74" title="All 12 branches covered.">                if (current.getI() + i &gt;= 0 &amp;&amp; current.getJ() + j &gt;= 0 &amp;&amp; current.getI() + i &lt; sizeGraph &amp;&amp; current.getJ() + j &lt; sizeGraph &amp;&amp; !(i == 0 &amp;&amp; j == 0)) {</span>
+<span class="fc" id="L75">                    target = graph[current.getI() + i][current.getJ() + j];</span>
+<span class="fc" id="L76">                    updateCostIfNeeded(current, target);</span>
+                }
+            }
+        }
+<span class="fc" id="L80">    }</span>
+
+    /**
+     * Return the path found by the execution of the algorithm.
+     * The path returned is simplified to only have the important checkpoints
+     *
+     * @return List&lt;NodeA&gt;
+     */
+    List&lt;NodeA&gt; getPath() {
+<span class="fc" id="L89">        List&lt;NodeA&gt; inversePath = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L90">        List&lt;NodeA&gt; finalPath = new ArrayList&lt;&gt;();</span>
+
+<span class="pc bpc" id="L92" title="1 of 2 branches missed.">        if (closedNodes[endI][endJ]) {</span>
+<span class="fc" id="L93">            NodeA current = graph[endI][endJ];</span>
+<span class="fc" id="L94">            current.setSolution(true);</span>
+
+<span class="fc" id="L96">            inversePath.add(current);</span>
+
+<span class="fc bfc" id="L98" title="All 2 branches covered.">            while (current.getParent() != null) {</span>
+<span class="fc" id="L99">                graph[current.getParent().getI()][current.getParent().getJ()].setSolution(true);</span>
+<span class="fc" id="L100">                inversePath.add(current.getParent());</span>
+
+<span class="fc" id="L102">                current = current.getParent();</span>
+            }
+
+<span class="fc bfc" id="L105" title="All 2 branches covered.">            for (int i = inversePath.size()-1; i &gt;= 0; i--) {</span>
+<span class="fc" id="L106">                finalPath.add(inversePath.get(i));</span>
+            }
+        }
+
+<span class="fc" id="L110">        return finalPath;</span>
+    }
+
+
+    /**
+     * Simplify a List of NodeA by keeping only the BoxMap used like &quot;&quot;&quot;junctions&quot;&quot;&quot;
+     *    =&gt; if some NodeA follow each other in diagonal, vertical or horizontal; then juste keep the second
+     *    (because the first one is ship BoxMap) and the last one of a line.
+     *
+     * @param nodeAList List&lt;NodeA&gt;
+     */
+    void simplifyPath(List&lt;NodeA&gt; nodeAList) {
+<span class="fc" id="L122">        List&lt;NodeA&gt; tempPath = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L123">        int sizePath = nodeAList.size();</span>
+<span class="fc" id="L124">        int deltaI = -1;</span>
+<span class="fc" id="L125">        int deltaJ = -1;</span>
+
+<span class="fc bfc" id="L127" title="All 2 branches covered.">        for (int i = 1; i &lt; sizePath; i++) {</span>
+<span class="fc bfc" id="L128" title="All 2 branches covered.">            if (i == 1) {</span>
+<span class="fc" id="L129">                deltaI = Math.abs(nodeAList.get(1).getI() - nodeAList.get(0).getI());</span>
+<span class="fc" id="L130">                deltaJ = Math.abs(nodeAList.get(1).getJ() - nodeAList.get(0).getJ());</span>
+<span class="fc" id="L131">                tempPath.add(nodeAList.get(i));</span>
+            } else {
+<span class="fc" id="L133">                int tempDeltaI = Math.abs(nodeAList.get(i).getI() - nodeAList.get(i-1).getI());</span>
+<span class="fc" id="L134">                int tempDeltaJ = Math.abs(nodeAList.get(i).getJ() - nodeAList.get(i-1).getJ());</span>
+
+<span class="pc bpc" id="L136" title="1 of 4 branches missed.">                if (deltaI != tempDeltaI || deltaJ != tempDeltaJ) {</span>
+<span class="fc" id="L137">                    tempPath.add(nodeAList.get(i - 1));</span>
+<span class="fc" id="L138">                    deltaI = tempDeltaI;</span>
+<span class="fc" id="L139">                    deltaJ = tempDeltaJ;</span>
+                }
+            }
+        }
+<span class="pc bpc" id="L143" title="1 of 2 branches missed.">        if(sizePath&gt;0)tempPath.add(nodeAList.get(sizePath - 1));</span>
+
+<span class="fc" id="L145">        nodeAList.clear();</span>
+<span class="fc" id="L146">        nodeAList.addAll(tempPath);</span>
+<span class="fc" id="L147">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

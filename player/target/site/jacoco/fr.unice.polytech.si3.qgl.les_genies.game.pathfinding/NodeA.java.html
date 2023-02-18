@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>NodeA.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">les_genies</a> &gt; <a href="index.source.html" class="el_package">fr.unice.polytech.si3.qgl.les_genies.game.pathfinding</a> &gt; <span class="el_source">NodeA.java</span></div><h1>NodeA.java</h1><pre class="source lang-java linenums">package fr.unice.polytech.si3.qgl.les_genies.game.pathfinding;
+
+public class NodeA {
+    private int i;
+    private int j;
+    private double finalCost;
+    private double heuristic;
+    private boolean solution;
+    private NodeA parent;
+
+<span class="fc" id="L11">    public NodeA(int i, int j, double heuristic) {</span>
+<span class="fc" id="L12">        this.i = i;</span>
+<span class="fc" id="L13">        this.j = j;</span>
+<span class="fc" id="L14">        this.heuristic = heuristic;</span>
+<span class="fc" id="L15">        this.solution = false;</span>
+<span class="fc" id="L16">    }</span>
+
+    public boolean isSolution() {
+<span class="fc" id="L19">        return solution;</span>
+    }
+
+    public void setFinalCost(double finalCost) {
+<span class="fc" id="L23">        this.finalCost = finalCost;</span>
+<span class="fc" id="L24">    }</span>
+
+    public void setSolution(boolean solution) {
+<span class="fc" id="L27">        this.solution = solution;</span>
+<span class="fc" id="L28">    }</span>
+
+    public int getI() {
+<span class="fc" id="L31">        return i;</span>
+    }
+
+    public int getJ() {
+<span class="fc" id="L35">        return j;</span>
+    }
+
+    public double getFinalCost() {
+<span class="fc" id="L39">        return finalCost;</span>
+    }
+
+    public double getHeuristic() {
+<span class="fc" id="L43">        return heuristic;</span>
+    }
+
+    public NodeA getParent() {
+<span class="fc" id="L47">        return parent;</span>
+    }
+
+    public void setParent(NodeA parent) {
+<span class="fc" id="L51">        this.parent = parent;</span>
+<span class="fc" id="L52">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>
